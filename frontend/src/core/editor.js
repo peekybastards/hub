@@ -4,7 +4,7 @@ class Editor {
     }
     defaults() {
       this.setOptions({
-        theme: "ace/theme/dracula",
+        theme: "ace/theme/chaos",
         mode: "ace/mode/javascript",
         wrap: true,
         fontSize: "24pt",

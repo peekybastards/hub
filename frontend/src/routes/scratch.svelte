@@ -19,13 +19,29 @@
     }
     window.handle = new Editor();
     window.wssHandle = new Connection()
+
     wss = window.wssHandle
+
+    window.handle.editor.commands.addCommand({
+      name: "save",
+      exec: function(){
+        resync()
+      }
+    })
     window.handle.editor.getSession().on("change", () => {
       let contents = window.handle.editor.getValue()
       $EditorValue = contents
     })
 
     window.handle.defaults();
+    ace.config.loadModule("ace/keyboard/vim", function(m) {
+
+    var VimApi = require("ace/keyboard/vim").CodeMirror.Vim
+      VimApi.defineEx("write", "w", function(cm, input) {
+        cm.ace.execCommand("save")
+        console.log("saving file")
+    })
+})
 
     EditorValue.subscribe((chg) => {
       if(chg === ""){
@@ -60,18 +76,18 @@
 
 </script>
 
-<div class="w-full flex space-2">
+<div class="flex">
   <input
     class="w-full text-2xl bg-gray-800 text-white"
     type="text"
     bind:value={$EditorTarget}
   />
   <button class="w-24 text-2xl bg-gray-800 text-green-500" id="ncontext" on:click={() => resync()}> Save </button>
-  <select class="text-2xl text-blue-500 bg-gray-800" bind:value={$EditorFType}>
+  <select class="text-2xl text-blue-500 bg-gray-800 capitalize" bind:value={$EditorFType}>
     {#each filetypes as filetype}
       <option value={filetype}>{filetype}</option>
     {/each}
   </select>
 
 </div>
-<div class="h-screen w-full" id="editor" />
+<div class="w-screen h-screen z-index-1" id="editor" />

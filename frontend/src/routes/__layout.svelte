@@ -13,4 +13,6 @@
     crossorigin="anonymous"></script>
 </svelte:head>
 
-<slot />
+<div class="h-screen w-screen">
+  <slot />
+</div>
