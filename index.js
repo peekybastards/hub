@@ -6,6 +6,7 @@ const fs = require("fs")
 const cors = require("cors")
 const bodyParser = require("body-parser")
 const path = require("path")
+const { logger } = require("./logger")
 //let's create synchronous file IO. would add async later ;P
 
 const readFile = (fpath) => {
@@ -17,11 +18,23 @@ const readFile = (fpath) => {
   }
 
 }
-
+app.use(logger)
 const server = http.createServer(app)
 const io = wss(server,{ cors: { origin: "*"} }) 
 
-io.on("connection", (socket) => {
+function dmanCommands(socket){
+  socket.on("download", (message) => {
+    //download util here
+  })
+
+  socket.on("pause", (message) => {})
+
+  socket.on("list", (message) => {
+    //return all download details
+  })
+}
+
+function editorCommands(socket){
   console.log("new connection received")
   socket.on("set", (message) => {
     let contents = message.value
@@ -52,10 +65,16 @@ io.on("connection", (socket) => {
       }
     }
     catch(e){
+      console.log(e)
       socket.emit("error", { err: e, message: "failed to read from file"})
     }
-
   })
+}
+
+
+io.on("connection", (socket) => {
+  //editor commands
+  editorCommands(socket)
 })
 
 app.get("/ping", (req, res) => {

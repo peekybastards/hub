@@ -7,7 +7,7 @@ class Editor {
         theme: "ace/theme/chaos",
         mode: "ace/mode/javascript",
         wrap: true,
-        fontSize: "24pt",
+        fontSize: "18pt",
         indentedSoftWrap: false,
         showPrintMargin: false,
         tabSize: 2,
@@ -68,8 +68,8 @@ class Editor {
 class Connection{
   constructor(){
     this.socket = io("ws://localhost:3000")
-    this.socket.on("error", (err) => console.log(`err received ${err}`))
-    this.socket.on("sucess", (err) => console.log(`success received ${err}`))
+    //this.socket.on("error", (err) => console.log(`err received ${err}`))
+    //this.socket.on("sucess", (err) => console.log(`success received ${err}`))
   }
   send(event, obj){
     this.socket.emit(event, obj)
