@@ -11,6 +11,10 @@
     src="https://cdn.socket.io/4.5.0/socket.io.min.js"
     integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
     crossorigin="anonymous"></script>
+  <link href="http://fonts.cdnfonts.com/css/ozda" rel="stylesheet" />
+  <link href="http://fonts.cdnfonts.com/css/mountella-trial" rel="stylesheet">
+  <link href="http://fonts.cdnfonts.com/css/black-wednesday" rel="stylesheet">
+
 </svelte:head>
 
 <div class="h-screen w-screen flex flex-col">
