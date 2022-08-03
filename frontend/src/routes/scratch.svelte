@@ -13,7 +13,7 @@
     window.wssHandle.send("setfpath", { fpath: $EditorTarget })
     window.wssHandle.send("get", {})
     window.wssHandle.socket.on("contents", (message) => {
-      console.log("got content from backend")
+      flushInfo("received contents")
       let contents = message.contents
       window.handle.editor.setValue(contents)
     })
@@ -32,7 +32,7 @@
     let value = fontSize
     try{
       value = Number(value)
-      console.log(value, "is the font size and please enjoy your meal")
+      infoLine("font resized")
       window.handle.editor.setOption("fontSize", `${value+1}pt`)
     }
     catch(e){
@@ -69,7 +69,7 @@
     var VimApi = require("ace/keyboard/vim").CodeMirror.Vim
       VimApi.defineEx("write", "w", function(cm, input) {
         cm.ace.execCommand("save")
-        console.log("saving file")
+        flushInfo("saved file")
     })
     })
 
@@ -77,28 +77,28 @@
 
     EditorValue.subscribe((chg) => {
       if(chg === ""){
-        console.log("changes empty")
+        flushInfo("changes empty")
         return
       }
-      console.log("editor value changed")
+      flushInfo("editor value changed")
       //window.wssHandle.send("set", { value: chg })
     })
 
     EditorTarget.subscribe((chg) => {
-      console.log("editor target changed", chg, $EditorTarget)
+      flushInfo("editor target changed")
       window.wssHandle.send("setfpath", { fpath: $EditorTarget })
       window.wssHandle.send("get", { fpath: $EditorTarget })
-      console.log("sending autocorrect to backend")
+      flushInfo("sending autocorrect to backend")
       window.wssHandle.send("autocomplete", { fpath: $EditorTarget })
     })
 
     EditorFType.subscribe((lang) => {
-      console.log("mode switched to", lang)
+      flushInfo("language changed to "+lang)
       window.handle.editor.session.setMode(`ace/mode/${lang}`)
     })
 
     window.wssHandle.socket.on("contents", (content) => {
-      console.log("recieved content!", content)
+      flushInfo("recieved contents")
       window.handle.editor.setValue(content)
     })
 
@@ -107,6 +107,7 @@
       autoCompletes = results
     })
     window.wssHandle.socket.on("madedir", () => {
+      flushInfo("received madedir")
       open()
     })
   })
@@ -114,13 +115,20 @@
     setTimeout(() => autoCompletes = false ,1000)
   }
   function touchFile(){
+    flushInfo("received mkdir")
     window.wssHandle.socket.emit("mkdir", { fpath: $EditorTarget })
   }
   let filetype = "markdown"
   let showGutter = true
   let fontSize = 18
   let openAutoComplete = false
+  let displayInfoLine = false
+  let infoLine = ""
 
+  function flushInfo(data){
+    displayInfoLine = true
+    infoLine = data
+  }
 </script>
 
 <div class="sticky top-0 flex space-around">
@@ -156,4 +164,5 @@
     {/each}
   </select>
   <input type="number" class="bg-gray-800 text-white border-2 p-1 font-ozda" bind:value={fontSize} on:change={() => resizeFont()} \>
+  <div class="text-white border-2 p-1 font-ozda w-1/3 text-center" on:click={() => save()}>{infoLine}</div>
 </div>
