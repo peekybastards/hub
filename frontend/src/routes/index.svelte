@@ -6,7 +6,7 @@
                 },
                 {
                   name: "dman",
-                  url: "/download"
+                  url: "/downloader"
                 }]
 </script>
 <ul class="bg-gray-800">

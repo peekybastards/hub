@@ -21,9 +21,6 @@
 </script>
 <div class="h-full w-screen bg-gray-900 flex flex-col items-center gap-8 pt-16 pb-28">
   <!-- downlaod entries below-->
-  <div class="w-full h-1/3 bg-gray-100">
-
-  </div>
   {#each items as item}
     <div class="w-5/6 h-full border-2 p-2 border-white shadow-lg shadow-blue-400">
 
