@@ -82,6 +82,11 @@ function editorCommands(socket){
       socket.emit("error", { err: e, message: "failed to read from file"})
     }
   })
+  socket.on("mkdir", (message) => {
+    let { fpath } = message
+    fs.writeFileSync(fpath, "")
+    socket.emit("madedir", { fpath })
+  })
 }
 
 

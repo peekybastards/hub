@@ -106,11 +106,15 @@
       let { results } = mess
       autoCompletes = results
     })
-
-
-  });
+    window.wssHandle.socket.on("madedir", () => {
+      open()
+    })
+  })
   function handleBlur(){
     setTimeout(() => autoCompletes = false ,1000)
+  }
+  function touchFile(){
+    window.wssHandle.socket.emit("mkdir", { fpath: $EditorTarget })
   }
   let filetype = "markdown"
   let showGutter = true
@@ -121,17 +125,12 @@
 
 <div class="sticky top-0 flex space-around">
   <input
-    class="w-2/3 text-2xl bg-gray-800 text-white font-mono"
+    class="w-full text-2xl bg-gray-800 text-white font-mono"
     type="text"
     on:focus={() => openAutoComplete = true} 
     on:blur={() => handleBlur()}
     bind:value={$EditorTarget}
   />
-  <select class="w-1/3 text-right text-2xl text-blue-500 bg-gray-800 capitalize" bind:value={$EditorFType}>
-    {#each $EditorModes as filetype}
-      <option value={filetype}>{filetype}</option>
-    {/each}
-  </select>
 </div>
 <div class="w-full flex flex-col bg-gray-900 overflow-scroll max-h-36">
   {#if autoCompletes.length && openAutoComplete}
@@ -147,13 +146,14 @@
 
 
 <div class="flex justify-center items-center h-12 bg-gray-800 space-x-2">
-  <div class="border-2 p-1 text-white" on:click={() => open()}>Ctrl+R</div>
-  <div class="text-white border-2 p-1" on:click={() => toggleNu()}>:se nonu</div>
-  <div class="text-white border-2 p-1" on:click={() => save()}>:w</div>
-  <select class="w-32 text-white text-center border-2 p-1 bg-gray-800" bind:value={$EditorFType}>
+  <div class="text-white border-2 p-1 font-ozda" on:click={() => touchFile()}>touch</div>
+  <div class="border-2 p-1 text-white font-ozda" on:click={() => open()}>Ctrl+R</div>
+  <div class="text-white border-2 p-1 font-ozda" on:click={() => toggleNu()}>:se nonu</div>
+  <div class="text-white border-2 p-1 font-ozda" on:click={() => save()}>:w</div>
+  <select class="w-48 text-white text-center border-2 p-1 bg-gray-800 font-ozda" bind:value={$EditorFType}>
     {#each $EditorModes as filetype}
       <option value={filetype}>{filetype}</option>
     {/each}
   </select>
-  <input type="number" class="bg-gray-800 text-white border-2 p-1" bind:value={fontSize} on:change={() => resizeFont()} \>
+  <input type="number" class="bg-gray-800 text-white border-2 p-1 font-ozda" bind:value={fontSize} on:change={() => resizeFont()} \>
 </div>

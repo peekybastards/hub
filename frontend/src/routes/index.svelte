@@ -7,7 +7,11 @@
                 {
                   name: "dman",
                   url: "/downloader"
-                }, 
+                },
+                {
+                  name: "explorer",
+                  url: "/explore"
+                },
                 {
                   name: "redditor",
                   url: "/redditor"
