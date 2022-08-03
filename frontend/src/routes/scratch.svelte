@@ -8,7 +8,6 @@
   let wss;
 
   function open(){
-    console.log("why did you come you asshole!")
     let newLoc = $EditorTarget
     window.wssHandle.send("setfpath", { fpath: $EditorTarget })
     window.wssHandle.send("get", {})
@@ -122,7 +121,7 @@
   </select>
 </div>
 
-<div class="w-screen h-5/6 z-index-1" id="editor" />
+<div class="w-screen h-full z-index-1" id="editor" />
 
 
 <div class="flex justify-center items-center h-12 bg-gray-800 space-x-2">

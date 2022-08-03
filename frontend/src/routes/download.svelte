@@ -17,11 +17,11 @@
   <!--div class="w-full h-96 border-2 border-white bg-gray-900">
     
 </div-->
-<div class="w-5/6 text-9xl text-white flex bg-gray-900 border-2 border-white items-center">
-  asklhjdkljaskld
-  askdjlkasjd
-  aslkjdlaskdlkjasldkjalks
-  askdjlaskjdlksj
+  <div class="w-full text-9xl text-white text-center">
+    asklhjdkljaskld
+    askdjlkasjd
+    aslkjdlaskdlkjasldkjalks
+    askdjlaskjdlksj
   </div>
   <DownloadEntry />
 
