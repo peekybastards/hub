@@ -4,6 +4,7 @@
   import { EditorValue, EditorTarget, EditorFType, EditorModes } from "../stores/scratch.js";
   import { Editor, Connection } from "../core/editor.js"
 
+  let autoCompletes = []
   let fpath = "/home/iamfiasco";
   let wss;
 
@@ -87,6 +88,8 @@
       console.log("editor target changed", chg, $EditorTarget)
       window.wssHandle.send("setfpath", { fpath: $EditorTarget })
       window.wssHandle.send("get", { fpath: $EditorTarget })
+      console.log("sending autocorrect to backend")
+      window.wssHandle.send("autocomplete", { fpath: $EditorTarget })
     })
 
     EditorFType.subscribe((lang) => {
@@ -99,19 +102,29 @@
       window.handle.editor.setValue(content)
     })
 
+    window.wssHandle.socket.on("autocomplete", (mess) => {
+      let { results } = mess
+      autoCompletes = results
+    })
+
 
   });
-
+  function handleBlur(){
+    setTimeout(() => autoCompletes = false ,1000)
+  }
   let filetype = "markdown"
   let showGutter = true
   let fontSize = 18
+  let openAutoComplete = false
 
 </script>
 
 <div class="sticky top-0 flex space-around">
   <input
-    class="w-2/3 text-2xl bg-gray-800 text-white"
+    class="w-2/3 text-2xl bg-gray-800 text-white font-mono"
     type="text"
+    on:focus={() => openAutoComplete = true} 
+    on:blur={() => handleBlur()}
     bind:value={$EditorTarget}
   />
   <select class="w-1/3 text-right text-2xl text-blue-500 bg-gray-800 capitalize" bind:value={$EditorFType}>
@@ -119,6 +132,15 @@
       <option value={filetype}>{filetype}</option>
     {/each}
   </select>
+</div>
+<div class="w-full flex flex-col bg-gray-900 overflow-scroll max-h-36">
+  {#if autoCompletes.length && openAutoComplete}
+    {#each autoCompletes as autoComplete}
+      <div class="w-2/3">
+        <p class="text-xl text-white font-mono"  on:click={() => EditorTarget.set(autoComplete)}>{autoComplete}</p>
+      </div>
+    {/each}
+  {/if}
 </div>
 
 <div class="w-screen h-full z-index-1" id="editor" />

@@ -1,5 +1,4 @@
 const express = require("express")
-const wss = require("socket.io")
 const app = express()
 const http = require("http")
 const fs = require("fs")
@@ -7,6 +6,7 @@ const cors = require("cors")
 const bodyParser = require("body-parser")
 const path = require("path")
 const { logger } = require("./logger")
+const wss = require("socket.io")
 //let's create synchronous file IO. would add async later ;P
 
 const readFile = (fpath) => {
@@ -20,7 +20,7 @@ const readFile = (fpath) => {
 }
 app.use(logger)
 const server = http.createServer(app)
-const io = wss(server,{ cors: { origin: "*"} }) 
+const io = wss(server, { cors: { origin: "*"} }) 
 
 function dmanCommands(socket){
   socket.on("download", (message) => {
@@ -55,6 +55,19 @@ function editorCommands(socket){
     socket.fpath = message.fpath
     socket.emit("success", `set fpath to ${message.fpath}`)
   })
+  socket.on("autocomplete", (message) => {
+    let { fpath } = message
+    let basePath
+    if(fpath[fpath.length - 1] !== "/")
+      basePath = path.dirname(fpath)
+    else
+      basePath = fpath
+    let contents = fs.readdirSync(basePath)
+    contents = contents.map(e => path.join(basePath, e))
+    let results = contents.filter(e => e.startsWith(fpath))
+    socket.emit("autocomplete", { results })
+  })
+
   socket.on("get", (message) => {
     try{
       console.log("recvd get signal")
