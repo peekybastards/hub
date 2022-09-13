@@ -18,16 +18,47 @@ const fileListSchema = joi.object({
   fpath: joi.string()
 })
 
+async function _contents(parsed){
+  try{
+    if(fs.exists(parsed.fpath)){
+      let stream = fs.createReadStream(parsed.fpath)
+      return { success: true, error: false, stream: stream }
+    }
+    else{
+      return { success: false, error: false, message: "fpath doesnt exist"}
+    }
+  }
+  catch(e){
+    return { success: false, error: e, message: "something unexpected happened"}
+  }
+}
+
+async function _write(parsed){
+  try{
+    if(fs.existsSync(parsed.fpath) || parsed.writeControl ){
+      await fs.promises.writeFile(parsed.fpath, parsed.contents)
+      return { success: true, error: false, message: `wrote contents to ${parsed.fpath}`}
+    }
+    else{
+      return { success: true, error: false, message: "write control detected or fpath doesnt exist!"}
+    }
+  }
+  catch(e){
+    return { success: false, error: e, message: "something unexpected happened"}
+  }
+}
+
+
 aceRouter.get("/contents", async (req, res) => {
   try{
     let payload = {fpath: req.body.fpath }
     let parsed = await fileReadSchema.validateAsync(payload)
-    if(fs.existsSync(parsed.fpath)){
-      let stream = fs.createReadStream(parsed.fpath)
-      return stream.pipe(res)
+    let result = await _contents(parsed)
+    if(result.success){
+      return result.stream.pipe(res)
     }
     else{
-      return res.json({ success: false, error: false, message: "no file exists with the given fpath"})
+      return res.json(result)
     }
   }
   catch(e){
@@ -39,39 +70,68 @@ aceRouter.get("/write", async(req, res) => {
   try{
     let payload = { fpath: req.body.fpath, contents: req.body.contents, writeControl: req.body.writeControl }
     let parsed = await fileWriteSchema.validateAsync(payload)
-    if(fs.existsSync(parsed.fpath) || parsed.writeControl){
-      await fs.promises.writeFile(parsed.fpath, parsed.contents)
-      return res.json({ sucess: true, error: false, message: "wrote contents to file"})
-    }
-    else return res.json({ success: true, error: false, message: "cannot commit changes; writeControl detected"})
+    let result = await _write(parsed)
+    return res.json(result)
   }
   catch(e){
     return res.json({ success: false, error: e, message: "something unexpected happened"})
   }
 })
 
-aceRouter.get("/list", async(req, res) => {
+async function _list(parsed){
   try{
-    let payload = { fpath: req.body.fpath }
-    let parsed = await fileListSchema.validateAsync(payload)
-    if(fs.existsSync(parsed.fpath)){
-      let stats = await fs.promises.lstat(parsed.fpath)
-      if(stats.isDirectory()){
-        let contents = await fs.promises.readdir(parsed.fpath)
-        contents = contents.map(content => path.join(parsed.fpath, content))
-        return res.json({ success: true, error: false, results: contents})
+    if(fs.existsSync(parsed)){
+      //fpath exists
+      let dpath = await fs.promises.lstat(parsed.fpath)
+      if(dpath.isDirectory()){
+        let contents = await fs.promises.listdir(parsed.fpath)
+        contents = contents.map(e => path.join(parsed.fpath, e))
+        return { success: true, error: false, contents }
       }
       else{
-        return res.json({ success: true, error: false, message: "fpath is not a directory", results: []})
+        return { success: true, error: false, message: "fpath is not a directory"}
       }
     }
   }
   catch(e){
-    console.log(e)
+    return res.json({ success: false, error: e, message: "something unexpected happened"})
+  }
+}
+
+
+aceRouter.get("/list", async(req, res) => {
+  try{
+    let payload = { fpath: req.body.fpath }
+    let parsed = await fileListSchema.validateAsync(payload)
+    let result = await _list(parsed)
+    return res.json(result)
+  }
+  catch(e){
     return res.json({ success: false, error: e, message: "something unexpected happened", results: []})
   }
 })
 
+function aceHelper(socket){
+  //might change to async later
+  socket.on("ace:list", async (data) => {
+    let parsed = await fileListSchema.validateAsync(data)
+    let result = await _list(parsed)
+    socket.emit("ace:list", result)
+  })
+  socket.on("ace:write", async (data) => {
+    let parsed = await fileWriteSchema.validateAsync(data)
+    let result = await _write(parsed)
+    socket.emit("ace:list", result)
+  })
+  socket.on("ace:contents", async (data) => {
+    let parsed = await fileListSchema.validateAsync(data)
+    let result = await _contents(parsed)
+    socket.emit("ace:contents", result)
+  })
+}
+
+
 module.exports = {
-  aceRouter
+  aceRouter,
+  aceHelper
 }
