@@ -13,6 +13,7 @@ export const load = async ({ data }) => {
   let response = await fetch("http://api.pushshift.io/reddit/submission/search?html_decode=true&author=peekybastards&size=1000&score=1")
   let lines = await response.json()
   lines = lines.data
+  console.log(lines)
   //let lines = json.data.map(e => {
   //  return e.body
   //})

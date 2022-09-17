@@ -7,19 +7,19 @@
 
 <script>
   import "../app.postcss";
+  import { webSocket } from "./store"
   import { onMount } from "svelte";
   //let navItems = ["home", "musu", "ace", "dmanager", "settings", "help"]
   import Navbar from "./navbar.svelte";
-  let socket = undefined
 
   function emit(event, data){
-      if(socket === undefined) console.log("websocket connection is not ready yet")
-      else socket.emit(event, data)
+      if($webSocket === {}) console.log("websocket connection is not ready yet")
+      else $webSocket.emit(event, data)
   }
 
 
   onMount(() => {
-      socket = io("ws://localhost:3000")
+      $webSocket = io("ws://localhost:3000")
       emit("clientMSG", "hello from client")
     })
 </script>
